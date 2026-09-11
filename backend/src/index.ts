@@ -6,9 +6,25 @@ import { projectsRouter } from './routes/projects.js'
 dotenv.config()
 
 const app = express()
-const port = 3001
+const port = Number(process.env.PORT) || 3001
 
-app.use(cors())
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://apqp-dig.vercel.app',
+  'https://www.apqp-dig.vercel.app'
+]
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+      return
+    }
+
+    callback(new Error('Not allowed by CORS'))
+  },
+  credentials: true,
+}))
 app.use(express.json({ limit: '10mb' }))
 
 // Mount API routes
@@ -20,5 +36,5 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`🚀 AI-APQP Backend Server running on http://localhost:${port}`)
+  console.log(`🚀 AI-APQP Backend Server running on port ${port}`)
 })
